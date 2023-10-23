@@ -60,6 +60,7 @@ class OhemCrossEntropy(nn.Module):
         """
         # score: (N, C, H, W)
         pred = F.softmax(score, dim=1)
+        # pred = pred.to(target.device)
         if self.class_weight is not None:
             class_weight = score.new_tensor(self.class_weight)
         else:
@@ -78,6 +79,7 @@ class OhemCrossEntropy(nn.Module):
         # pred: (N, C, H, W) -> (N*H*W, C)
         pred = pred.gather(1, tmp_target.unsqueeze(1))
         # pred: (N*H*W, C) -> (N*H*W), ind: (N*H*W)
+
         pred, ind = pred.contiguous().view(-1, )[mask].contiguous().sort()
         if pred.numel() > 0:
             min_value = pred[min(self.min_kept, pred.numel() - 1)]
